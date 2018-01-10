@@ -1,0 +1,61 @@
+<!doctype html>
+<html class="has-navbar-fixed-top">
+  <head>
+    {% block head %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112011733-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-112011733-2');
+    </script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <title>TurtleCoin Faucet - Free Cryptocurrency</title>
+    <meta name="description" content="Turtlecoin is a community driven open source cryptocurrency based on Bytecoin. This faucet gives them for free"/>
+    <meta name="keywords" content="Crypto, Bitcoin, Turtlecoin, Faucet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% endblock %}
+  </head>
+  <body>
+    {% block header %}
+    <nav class="navbar is-dark is-fixed-top" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://turtlecoin.lol">
+          <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}">
+          <sup><strong style="font-size: 20px !important;">TurtleCoin</strong></sup>
+        </a>
+      </div>
+      <button class="button navbar-burger is-dark" data-target="navMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="navbar-menu" id="navMenu">
+        <div class="navbar-end">
+          <a class="navbar-item" href="https://github.com/krruzic/TurtleFaucet">
+            Source Code
+          </a>
+        </div>
+      </div>
+
+    </nav>
+    {% endblock %}
+    <div id="particles-js"></div>
+    <div id="pagecontent">
+      {% block content %}{% endblock %}
+    </div>
+    {% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="{{ url_for('static', filename='js/parts.js') }}"></script>
+    {% endblock %}
+  </body>
+</html>

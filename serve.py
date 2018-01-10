@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, session, redirect, url_for
+from flask import Flask, render_template, flash, session, redirect, url_for, request
 from wtforms import TextAreaField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
@@ -16,7 +16,6 @@ HEADERS = {'content-type': 'application/json'}
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
-
 RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
 csrf = CSRFProtect()
 
@@ -26,7 +25,6 @@ app.config.update(dict(
     SECRET_KEY=os.environ.get("SECRET_KEY"),
     WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY")
 ))
-
 handler = logging.StreamHandler()
 app.logger.addHandler(handler)
 csrf.init_app(app)
@@ -43,18 +41,17 @@ def index(form=None):
     return render_template("index.html",shells=shells,form=form)
 
 
-@app.route("/get/", methods=("POST",))
+@app.route("/pour", methods=["POST"])
 def get_shells():
     form = FaucetForm()
     if form.validate_on_submit():
         do_send(form.address.data)
-        flash("You've been given 10 shells!")
-        return redirect(url_for("index"))
-    return index(form)
+        return json.dumps({'status':'OK'}),200;
+    else: return json.dumps({'status':'Fail'}),500;
 
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
-@app.route("/balance/")
+@app.route("/balance", methods=("GET",))
 def shell_balance():
     rpc_input = {
         "method": "getbalance"
@@ -71,7 +68,7 @@ def shell_balance():
     data = response.json()
     av = float(data['result']['available_balance'])
     lck = float(data['result']['locked_amount'])
-    return str((av+lck)/100)
+    return str((av)/100)
 
 
 def do_send(address):
@@ -108,10 +105,10 @@ def do_send(address):
          headers=HEADERS)
 
     # print the payment_id
-    print("#payment_id: ", payment_id)
+    app.logger.info("#payment_id: ", payment_id)
 
     # pretty print json output
-    print(json.dumps(response.json(), indent=4))
+    app.logger.info(json.dumps(response.json(), indent=4))
 
 
 def get_payment_id():

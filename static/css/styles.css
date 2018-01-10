@@ -1,14 +1,26 @@
-html {
-  overflow-y: hidden !important;
+nav {
+  display: flex;
 }
-.hero {
-  height: 100% !important;
+.navbar-menu.is-active {
+  background-color: #363636;
+  padding: 0 !important;
+  align-self: center;
 }
+.navbar-item {
+  color: #fff !important;
+}
+
 #particles-js {
   background: linear-gradient(to right, #2ecc71 0%,#27aa6b 35%,#2ecc71 64%,#229379 100%);
+  position:fixed;
+  top:3.25rem;
+  right:0;
+  bottom:0;
+  left:0;
+  z-index:0; 
 }
-.hero-body {
-  padding: 0 !important;
+#pagecontent {
+  position: relative;
 }
 img {
   display:block;
@@ -17,4 +29,17 @@ img {
 .g-recaptcha {
   display: flex;
   justify-content: center;
+}
+.notification {
+  margin-right: 2%;
+  width: 25%;
+  align-self: flex-end;
+  display: none;
+}
+.delete {
+  margin: 5px;
+}
+.notification-center {
+  display: flex;
+  flex-direction: column;
 }
