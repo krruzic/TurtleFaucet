@@ -65,9 +65,10 @@ def shell_balance():
         RPC_URL,
         data=json.dumps(rpc_input),
         headers=HEADERS)
-    av = int(response.json()['result']['available_balance'])
-    lck = int(response.json()['result']['locked_amount'])
-    return ((av+lck)/100)
+    data = response.json()
+    av = float(data['result']['available_balance'])
+    lck = float(data['result']['locked_amount'])
+    return str((av+lck)/100)
 
 
 def do_send(address):
