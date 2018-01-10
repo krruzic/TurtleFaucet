@@ -9,7 +9,7 @@ import requests
 import json
 import os
 import binascii
-
+import logging
 
 RPC_URL = "http://localhost:32222/json_rpc"
 HEADERS = {'content-type': 'application/json'}
@@ -26,6 +26,9 @@ app.config.update(dict(
     SECRET_KEY=os.environ.get("SECRET_KEY"),
     WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY")
 ))
+
+handler = logging.StreamHandler()
+app.logger.addHandler(handler)
 csrf.init_app(app)
 
 class FaucetForm(FlaskForm):
@@ -73,7 +76,7 @@ def shell_balance():
 
 def do_send(address):
     destination_address = address
-    int_amount = 1000 # hardcoded!
+    int_amount = 100000 # hardcoded!
 
     recipents = [{"address": destination_address,
                   "amount": int_amount}]
@@ -90,7 +93,7 @@ def do_send(address):
         "method": "transfer",
         "params": {"destinations": recipents,
                    "mixin": mixin,
-                   "fee": 10,
+                   "fee": 1000,
                    "payment_id" : payment_id}
     }
 
