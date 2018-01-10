@@ -1,0 +1,20 @@
+html {
+  overflow-y: hidden !important;
+}
+.hero {
+  height: 100% !important;
+}
+#particles-js {
+  background: linear-gradient(to right, #2ecc71 0%,#27aa6b 35%,#2ecc71 64%,#229379 100%);
+}
+.hero-body {
+  padding: 0 !important;
+}
+img {
+  display:block;
+    margin:auto;
+}
+.g-recaptcha {
+  display: flex;
+  justify-content: center;
+}

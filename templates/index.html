@@ -1,0 +1,115 @@
+<html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112011733-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-112011733-2');
+    </script>
+
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-4043500451952202",
+        enable_page_level_ads: true
+      });
+    </script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
+
+    <meta charset="utf-8">
+    <title>TurtleCoin Faucet - Free Cryptocurrency</title>
+    <meta name="description" content="Turtlecoin is a community driven open source cryptocurrency based on Bytecoin. This faucet gives them for free"/>
+    <meta name="keywords" content="Crypto, Bitcoin, Turtlecoin, Faucet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://turtlecoin.lol">
+          <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}">
+          <sup><strong style="font-size: 20px !important;">TurtleCoin</strong></sup>
+        </a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/turtlecoin/">
+          Github
+        </a>
+      </div>
+    </nav>
+    <section class="hero">
+      <div class="hero-body">
+        <div id="particles-js">
+          <section class="section" style="position: absolute; width: 100%;">
+            <div class="container">
+              <div class="content">
+                <div class="columns" style="justify-content: space-between;">
+                <h1 class="has-text-white is-capitalized has-text-weight-light is-size-1-fullhd" style="margin: 0">TurtleCoin Faucet</h1>
+                <h2 class="has-text-white is-capitalized has-text-weight-light is-size-5-fullhd" style="margin: 0 align-self: end;"><span id="numshells">{{shells}}</span> TRTLs remaining</h2>
+              </div>
+                <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}" class="image">
+                <form method="POST" action="{{ url_for('get_shells') }}">
+                  {{ form.csrf_token }}
+                  <div class="field">
+                    <label class="label has-text-centered">Your Turtlecoin Address</label>
+                    <div class="control" style="width: 75%; margin: auto;">
+                     {{ form.address(size=80,class_="input",id="addressinput") }}
+                    </div>
+                  </div>
+                  <p>
+                    {% for error in form.recaptcha.errors %}
+                      {{ error }}
+                    {% endfor %}
+                    {{ form.recaptcha }}
+                  </p>
+                  <div class="control has-text-centered" style="margin: auto;">
+                    <input type="submit" class="button is-dark" value="Get Shells"/>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="{{ url_for('static', filename='js/parts.js') }}"></script>
+    <script type="text/javascript">
+      var csrf_token = "{{ csrf_token() }}";
+      $("#addressinput").attr('placeholder',"TRTLv3YFzEtDMrpWXAFgLRiB4Cfk7Gs1yUM2Z6wYzGZi6up1HHHNTpx5XysQJVJL2fJC7qx6RWkCXWmygFsaNYHUFMFN5rJMmM5");
+
+      $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
+              }
+          }
+      });
+
+      setInterval(function() {
+        if (parseInt($("#numshells").text())==0) {
+          $("#addressinput").prop('disabled',true);
+          $("#addressinput").attr('placeholder',"The Faucet is empty! Come back later");
+        } else {
+          $("#addressinput").prop('disabled',false);
+          $("#addressinput").attr('placeholder',"TRTLv3YFzEtDMrpWXAFgLRiB4Cfk7Gs1yUM2Z6wYzGZi6up1HHHNTpx5XysQJVJL2fJC7qx6RWkCXWmygFsaNYHUFMFN5rJMmM5");
+        }
+        $.ajax({
+          url: "/balance/",
+          cache: false,
+          success: function(html){
+            $("#numshells").text(html);
+          }
+        });
+      }, 10000);
+    </script>
+  </body>
+</html>
