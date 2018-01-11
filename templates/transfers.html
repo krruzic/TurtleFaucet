@@ -23,7 +23,7 @@
           <tr>
             <td>{{ transfer.transfer_time }}</td>
             <td>{{ transfer.destination }}</td>
-            <td>{{ transfer.amount }}</td>
+            <td>{{ transfer.amount/100 }}</td>
             <td>{{ transfer.tx_hash }}</td>
           </tr>
           {% endfor %}
