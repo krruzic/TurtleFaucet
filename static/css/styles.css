@@ -47,6 +47,9 @@ img {
   width: 100%;
   padding: 2%;
 }
+td {
+  word-wrap: break-word;
+}
 @media (max-width: 1000px) {
   .image {
     height: 128px;
@@ -55,6 +58,9 @@ img {
   .notification {
     width: 90% !important;
     align-self: center;
+  }
+  h2 {
+    font-size: 1rem !important;
   }
 }
 

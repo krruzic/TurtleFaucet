@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block header %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="content">
+      <table class="table is-striped" style="table-layout: fixed;">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Destination</th>
+            <th>Amount</th>
+            <th>Transaction Hash</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transfer in transfers %}
+          <tr>
+            <td>{{ transfer.transfer_time }}</td>
+            <td>{{ transfer.destination }}</td>
+            <td>{{ transfer.amount }}</td>
+            <td>{{ transfer.tx_hash }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block js %}
+  {{ super() }}
+  <script type="text/javascript">
+    $('#transfer_nav').addClass('is-active');
+  </script>
+{% endblock %}
