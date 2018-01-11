@@ -53,7 +53,7 @@ img {
     width: 128px;  
   }
   .notification {
-    width: 100% !important;
+    width: 90% !important;
     align-self: center;
   }
 }
