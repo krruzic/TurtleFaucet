@@ -1,3 +1,5 @@
 faucet.ini
 __pycache__/
 *.pyc
+*.log
+*.db

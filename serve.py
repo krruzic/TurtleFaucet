@@ -106,7 +106,7 @@ def shell_balance():
 
 
 def do_send(address):
-    int_amount = 10000 # hardcoded!
+    int_amount = 1000 # hardcoded!
 
     recipents = [{"address": address,
                   "amount": int_amount}]
@@ -118,7 +118,7 @@ def do_send(address):
         "method": "transfer",
         "params": {"destinations": recipents,
                    "mixin": 0,
-                   "fee": 100,
+                   "fee": 10,
                    "payment_id": payment_id,
                    "unlock_time": 0}
     }
@@ -131,10 +131,11 @@ def do_send(address):
          RPC_URL,
          data=json.dumps(rpc_input),
          headers=HEADERS)
-    tx_hash = response.json()['result']['tx_hash']
     # pretty print json output
     app.logger.info(json.dumps(response.json(), indent=4))
-    transfer = Transfer(destination=address, 
+
+    tx_hash = response.json()['result']['tx_hash']
+    transfer = Transfer(destination=address,
         payment_id=payment_id,
         amount = int_amount,
         transfer_time=datetime.utcnow(),

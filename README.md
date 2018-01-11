@@ -1,6 +1,8 @@
-Quickly thrown together faucet. There are probably a lot of bugs, and I'll try to get around to them. 
+Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. No limiting is present
+
 
 ## Running this
+`pip3 install -r requirements.txt`
 You'll need to create a file called 'faucet.ini'.
 The file should look like this:
 ```ini
@@ -23,8 +25,13 @@ env=WTF_CSRF_SECRET_KEY={random_string}
 
 
 #logging
-logto=/some/path/%n.log
+logger = /path/to/errlog.log
+re-logger = /path/to/reqlog.log
 ```
 
-
+After that, run 
+```python
+python3 -c from serve import db;db.create_all()
+```
+then `uswgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
 I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)
