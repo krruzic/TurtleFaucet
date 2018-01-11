@@ -73,13 +73,10 @@ def shell_balance():
 
 def do_send(address):
     destination_address = address
-    int_amount = 100000 # hardcoded!
+    int_amount = 10000 # hardcoded!
 
     recipents = [{"address": destination_address,
                   "amount": int_amount}]
-
-    # using given mixin
-    mixin = 4
 
     # get some random payment_id
     payment_id = get_payment_id()
@@ -89,8 +86,8 @@ def do_send(address):
     rpc_input = {
         "method": "transfer",
         "params": {"destinations": recipents,
-                   "mixin": mixin,
-                   "fee": 1000,
+                   "mixin": 0,
+                   "fee": 100,
                    "payment_id" : payment_id}
     }
 
