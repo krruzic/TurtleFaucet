@@ -24,17 +24,17 @@ nav {
 }
 img {
   display:block;
-    margin:auto;
+  margin:auto;
 }
 .g-recaptcha {
   display: flex;
   justify-content: center;
 }
 .notification {
-  margin-right: 2%;
   width: 25%;
   align-self: flex-end;
   display: none;
+  position: absolute !important;
 }
 .delete {
   margin: 5px;
@@ -42,4 +42,25 @@ img {
 .notification-center {
   display: flex;
   flex-direction: column;
+  position: fixed;
+  bottom: 6rem;
+  width: 100%;
+  padding: 2%;
+}
+@media (max-width: 1000px) {
+  .image {
+    height: 128px;
+    width: 128px;  
+  }
+  .notification {
+    width: 100% !important;
+    align-self: center;
+  }
+}
+
+@media (min-width: 1001px) {
+  .image {
+    height: 256px;
+    width: 256px;
+  }
 }
