@@ -1,7 +1,30 @@
 Quickly thrown together faucet. There are probably a lot of bugs, and I'll try to get around to them. 
 
 ## Running this
-You can just use `FLASK_APP=serve.py flask run` however if you want the captcha and such to work you'll need to 1. make a captcha account and 2. use uwsgi and make a config with the env vars.
+You'll need to create a file called 'faucet.ini'.
+The file should look like this:
+```ini
+[uwsgi]
+module = wsgi:app
+protocol=http
+http-socket = :9090
+master = true
+processes = 1
+
+vacuum = true
+
+die-on-term=true
+
+#environment
+env=RECAPTCHA_PUBLIC_KEY={KEY_FROM_GOOGLE}
+env=RECAPTCHA_PRIVATE_KEY=KEY_FROM_GOOGLE}
+env=SECRET_KEY={random_string}
+env=WTF_CSRF_SECRET_KEY={random_string}
 
 
-I left in the google adsense and analytics because I couldn't find a way to add that at deployment. Enjoy :)
+#logging
+logto=/some/path/%n.log
+```
+
+
+I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)
