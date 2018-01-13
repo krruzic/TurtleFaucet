@@ -22,7 +22,7 @@ env=RECAPTCHA_PRIVATE_KEY=KEY_FROM_GOOGLE}
 env=SECRET_KEY={random_string}
 env=WTF_CSRF_SECRET_KEY={random_string}
 env=FAUCET_ADDR={address_to_deposit_to}
-env=RATELIMIT={True/False} # do not include to remove feature
+env=RATELIMIT={True} # remove line to not restrict access
 env=MAXPULLS={Uses before ban}
 
 #logging

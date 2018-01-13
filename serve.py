@@ -19,7 +19,7 @@ HEADERS = {'content-type': 'application/json'}
 
 
 if "MAXPULLS" in os.environ:
-    RATELIMIT_AMOUNT = os.environ.get("MAXPULLS")
+    RATELIMIT_AMOUNT = int(os.environ.get("MAXPULLS"))
 else:
     RATELIMIT_AMOUNT = 1
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
