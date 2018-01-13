@@ -68,6 +68,7 @@ class FaucetForm(FlaskForm):
 
 def rate_check(address):
     uses = Transfer.query.filter(Transfer.destination == address).count()
+    app.logger.info("%s HAS USED %d TIMES" % (address,uses))
     if uses >= RATELIMIT_AMOUNT:
         return json.dumps({'status':'Fail',
             'reason':'This address has already used the faucet'}),500
