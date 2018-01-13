@@ -11,7 +11,7 @@
     <div class="content">
       <div class="columns" style="justify-content: space-between; align-items: baseline;">
       <h1 class="has-text-white is-capitalized has-text-weight-light is-size-1-fullhd" style="margin: 0">TurtleCoin Faucet</h1>
-      <h2 class="has-text-white is-capitalized has-text-weight-light is-size-5-fullhd" style="margin: 0;"><span id="numshells">{{ shells }}</span> TRTLs remaining    |    <span id="lockedshells"> {{ locked }} TRTLs locked </span></h2>
+      <h2 class="has-text-white is-capitalized has-text-weight-light is-size-5-fullhd" style="margin: 0;"><span id="numshells">{{ shells }}</span> TRTLs remaining | <span id="lockedshells"> {{ locked }} TRTLs locked </span></h2>
     </div>
       <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}" class="image">
       <form method="POST" action="{{ url_for('get_shells') }}" id="shellform">
@@ -23,7 +23,7 @@
           </div>
         </div>
         <p class="has-text-centered" style="overflow-wrap: break-word;
-">Donations: TRTLv14M1Q9223QdWMmJyNeY8oMjXs5TGP9hDc3GJFsUVdXtaemn1mLKA25Hz9PLu89uvDafx9A93jW2i27E5Q3a7rn8P2fLuVA</p>
+">Donations: {{ addr }}</p>
         <p>
           {% for error in form.recaptcha.errors %}
             {{ error }}
@@ -45,7 +45,7 @@
   <div class="notification is-danger" id="errormessage">
     <button class="delete"></button>
     Error, something went wrong :(
-    Make sure the captcha is filled!
+    <span id="err_message">Make sure the captcha is filled!</span>
   </div>
 </div>
 {% endblock %}

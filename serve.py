@@ -13,9 +13,15 @@ import os
 import binascii
 import logging
 
+ADDRESS = os.environ.get("FAUCET_ADDR")
 RPC_URL = "http://localhost:32222/json_rpc"
 HEADERS = {'content-type': 'application/json'}
 
+
+if "MAXPULLS" in os.environ:
+    RATELIMIT_AMOUNT = os.environ.get("MAXPULLS")
+else:
+    RATELIMIT_AMOUNT = 1
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
 RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
@@ -60,12 +66,19 @@ class FaucetForm(FlaskForm):
     recaptcha = RecaptchaField()
     address = StringField('address', validators=[DataRequired()])
 
+def rate_check(address):
+    uses = Transfer.query.filter(Transfer.destination == address).count()
+    if uses >= RATELIMIT_AMOUNT:
+        return json.dumps({'status':'Fail',
+            'reason':'This address has already used the faucet'}),500
+    return json.dumps({'status':'OK'}),200
+
 @app.route("/")
 def index(form=None):
-    shells = shell_balance()
+    shells = json.loads(shell_balance())
     if form is None:
         form = FaucetForm()
-    return render_template("index.html",shells=shells[0],locked=shells[1],form=form)
+    return render_template("index.html",shells=shells['available'],locked=shells['locked'],form=form,addr=ADDRESS)
 
 
 @app.route("/transfers", methods=["GET"])
@@ -76,12 +89,18 @@ def get_transfers():
 @app.route("/pour", methods=["POST"])
 def get_shells():
     form = FaucetForm()
-    if form.address.data=="TRTLv14M1Q9223QdWMmJyNeY8oMjXs5TGP9hDc3GJFsUVdXtaemn1mLKA25Hz9PLu89uvDafx9A93jW2i27E5Q3a7rn8P2fLuVA":
-        return json.dumps({'status':'Fail'}),500
+    if form.address.data==ADDRESS:
+        return json.dumps({'status':'Fail',
+            'reason':'The faucet cannot send to itself'}),500
     if form.validate_on_submit():
-        do_send(form.address.data)
+        resp = do_send(form.address.data)
+        if "reason" in json.loads(resp):
+            return resp,500
+        if "RATELIMIT" in os.environ:
+            return rate_check(form.address.data)
         return json.dumps({'status':'OK'}),200
-    else: return json.dumps({'status':'Fail'}),500
+    return json.dumps({'status':'Fail',
+            'reason':'Make sure the captcha and address fields are filled'}),500
 
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
@@ -104,7 +123,7 @@ def shell_balance():
 
     av = float(data['result']['available_balance'])
     lck = float(data['result']['locked_amount'])
-    return (str((av)/100),str((lck)/100))
+    return json.dumps({"available": str((av)/100),"locked": str((lck)/100)})
 
 
 def do_send(address):
@@ -135,7 +154,8 @@ def do_send(address):
          headers=HEADERS)
     # pretty print json output
     app.logger.info(json.dumps(response.json(), indent=4))
-
+    if "error" in response.json():
+        return json.dumps({"status": "Fail", "reason": response.json()["error"]["message"]})
     tx_hash = response.json()['result']['tx_hash']
     transfer = Transfer(destination=address,
         payment_id=payment_id,
@@ -146,6 +166,7 @@ def do_send(address):
         )
     db.session.add(transfer)
     db.session.commit()
+    return json.dumps({"status": "OK"})
 
 def get_payment_id():
     random_32_bytes = os.urandom(32)

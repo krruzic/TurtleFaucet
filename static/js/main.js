@@ -39,10 +39,13 @@ $('#getshells').click(function() {
       }
     },
     success: function(response) {
-      $('#successmessage').fadeIn(1000)
+      $('#successmessage').fadeIn(1000);
+      $('#successmessage').fadeOut(3000);
     },
     error: function(error) {
-      $('#errormessage').fadeIn(1000)
+      $('#errormessage').fadeIn(1000);
+      $('#err_message').text(JSON.parse(error.responseText).reason)
+      $('#errormessage').fadeOut(3000);
     }
   });
 });
