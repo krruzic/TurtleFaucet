@@ -76,10 +76,12 @@ def get_transfers():
 @app.route("/pour", methods=["POST"])
 def get_shells():
     form = FaucetForm()
+    if form.address.data=="TRTLv14M1Q9223QdWMmJyNeY8oMjXs5TGP9hDc3GJFsUVdXtaemn1mLKA25Hz9PLu89uvDafx9A93jW2i27E5Q3a7rn8P2fLuVA":
+        return json.dumps({'status':'Fail'}),500
     if form.validate_on_submit():
         do_send(form.address.data)
-        return json.dumps({'status':'OK'}),200;
-    else: return json.dumps({'status':'Fail'}),500;
+        return json.dumps({'status':'OK'}),200
+    else: return json.dumps({'status':'Fail'}),500
 
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
