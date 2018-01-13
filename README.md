@@ -31,7 +31,7 @@ re-logger = /path/to/reqlog.log
 
 After that, run 
 ```python
-python3 -c from serve import db;db.create_all()
+python3 -c from 'serve import db;db.create_all()'
 ```
 then `uswgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
 I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)
