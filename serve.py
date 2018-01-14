@@ -67,12 +67,13 @@ class FaucetForm(FlaskForm):
     address = StringField('address', validators=[DataRequired()])
 
 def rate_check(address):
+    if "RATELIMIT" not in os.environ:
+        return True
     uses = Transfer.query.filter(Transfer.destination == address).count()
     app.logger.info("%s HAS USED %d TIMES" % (address,uses))
     if uses >= RATELIMIT_AMOUNT:
-        return json.dumps({'status':'Fail',
-            'reason':'This address has already used the faucet'}),500
-    return json.dumps({'status':'OK'}),200
+        return False
+    return True
 
 @app.route("/")
 def index(form=None):
@@ -94,11 +95,12 @@ def get_shells():
         return json.dumps({'status':'Fail',
             'reason':'The faucet cannot send to itself'}),500
     if form.validate_on_submit():
+        if not rate_check(form.address.data):
+            return json.dumps({'status':'Fail',
+                'reason':'This address has already used the faucet'}),500
         resp = do_send(form.address.data)
         if "reason" in json.loads(resp):
             return resp,500
-        if "RATELIMIT" in os.environ:
-            return rate_check(form.address.data)
         return json.dumps({'status':'OK'}),200
     return json.dumps({'status':'Fail',
             'reason':'Make sure the captcha and address fields are filled'}),500
