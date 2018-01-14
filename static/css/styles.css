@@ -30,6 +30,9 @@ img {
   display: flex;
   justify-content: center;
 }
+.rc-anchor-dark {
+  background: #2f2f2f !important;
+}
 .notification {
   width: 25%;
   align-self: flex-end;
