@@ -1,6 +1,12 @@
 Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limiting is optional
 
+
+
 ## Running this
+First make sure Turtlecoind is running and fully sync'd.
+Then start `simplewallet` with these args:
+`/path/to/simplewallet --wallet-file walletname --password walletpass --rpc-bind-port 32222`
+
 `pip3 install -r requirements.txt`
 You'll need to create a file called 'faucet.ini'.
 The file should look like this:
@@ -34,5 +40,5 @@ After that, run
 ```python
 python3 -c 'from serve import db;db.create_all()'
 ```
-then `uswgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
+then `uwsgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
 I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)
