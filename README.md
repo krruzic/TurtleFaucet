@@ -4,8 +4,8 @@ Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limitin
 
 ## Running this
 First make sure Turtlecoind is running and fully sync'd.
-Then start `simplewallet` with these args:
-`/path/to/simplewallet --wallet-file walletname --password walletpass --rpc-bind-port 32222`
+Then start `walletd` with these args:
+`/path/to/walletd -w walletname -p walletpass -d`
 
 `pip3 install -r requirements.txt`
 You'll need to create a file called 'faucet.ini'.

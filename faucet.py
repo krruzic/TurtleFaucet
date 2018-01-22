@@ -131,9 +131,7 @@ def shell_balance():
 
 def do_send(address):
     avail = json.loads(shell_balance())['available']
-    int_amount = 10000
-    if int(float(avail))<10000:
-        int_amount = 1000
+    int_amount = 1000
 
     recipents = [{"address": address,
                   "amount": int_amount}]
