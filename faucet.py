@@ -1,4 +1,6 @@
 from flask import Flask, render_template, flash, session, redirect, url_for, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
@@ -29,6 +31,11 @@ csrf = CSRFProtect()
 
 app = Flask(__name__, static_url_path='/static')
 app.config.from_object(__name__)
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["3 per day"],
+)
 app.config.update(dict(
     SECRET_KEY=os.environ.get("SECRET_KEY"),
     WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY")
@@ -76,6 +83,7 @@ def rate_check(address):
     return True
 
 @app.route("/")
+@limiter.exempt
 def index(form=None):
     shells = json.loads(shell_balance())
     if form is None:
@@ -84,10 +92,13 @@ def index(form=None):
 
 
 @app.route("/transfers", methods=["GET"])
+@limiter.exempt
 def get_transfers():
     transfers = db.session.query(Transfer).order_by(Transfer.id.desc()).limit(10).all()
     return render_template("transfers.html",transfers=transfers)
 
+
+@limiter.limit("3 per day")
 @app.route("/pour", methods=["POST"])
 def get_shells():
     form = FaucetForm()
@@ -108,6 +119,7 @@ def get_shells():
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
 @app.route("/balance", methods=["GET"])
+@limiter.exempt
 def shell_balance():
     rpc_input = {
         "method": "getBalance"

@@ -43,9 +43,15 @@ $('#getshells').click(function() {
       $('#successmessage').fadeOut(3000);
     },
     error: function(error) {
-      $('#errormessage').fadeIn(1000);
-      $('#err_message').text(JSON.parse(error.responseText).reason)
-      $('#errormessage').fadeOut(3000);
+      if (error.status === 429) {
+                $('#errormessage').fadeIn(1000);
+        $('#err_message').text("You can only use the faucet 3 times a day")
+        $('#errormessage').fadeOut(3000);
+      } else {
+        $('#errormessage').fadeIn(1000);
+        $('#err_message').text(JSON.parse(error.responseText).reason)
+        $('#errormessage').fadeOut(3000);
+      }
     }
   });
 });

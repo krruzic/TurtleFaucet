@@ -46,7 +46,7 @@ img {
   display: flex;
   flex-direction: column;
   position: fixed;
-  bottom: 6rem;
+  bottom: 12vh;
   width: 100%;
   padding: 2%;
 }
@@ -64,6 +64,9 @@ td {
   }
   h2 {
     font-size: 1rem !important;
+  }
+  .notification-center {
+    bottom: 80vh;
   }
 }
 
