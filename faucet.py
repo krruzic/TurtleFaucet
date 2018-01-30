@@ -72,7 +72,7 @@ def index(form=None):
     shells = json.loads(shell_balance())
     if form is None:
         form = FaucetForm()
-    return render_template("index.html",shells=shells['available'],locked=shells['locked'],form=form,addr=ADDRESS)
+    return render_template("index.html",shells=shells['available'],form=form,addr=ADDRESS)
 
 
 @app.route("/transfers", methods=["GET"])
