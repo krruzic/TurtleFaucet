@@ -32,7 +32,6 @@ app.config.update(dict(
     SQLALCHEMY_DATABASE_URI='sqlite:///faucet.db',
     SQLALCHEMY_TRACK_MODIFICATIONS=False
 ))
-formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
 
 
 

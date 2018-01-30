@@ -1,4 +1,4 @@
-Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limiting is optional
+Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limiting is set to 3 per day.
 
 
 
@@ -28,8 +28,6 @@ env=RECAPTCHA_PRIVATE_KEY=KEY_FROM_GOOGLE}
 env=SECRET_KEY={random_string}
 env=WTF_CSRF_SECRET_KEY={random_string}
 env=FAUCET_ADDR={address_to_deposit_to}
-env=RATELIMIT={True} # remove line to not restrict access
-env=MAXPULLS={Uses before ban}
 
 #logging
 logger = /path/to/errlog.log
