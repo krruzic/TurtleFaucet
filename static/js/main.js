@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-var csrf_token = "{{ csrf_token() }}";
+
 $("#addressinput").attr('placeholder',"TRTLv3YFzEtDMrpWXAFgLRiB4Cfk7Gs1yUM2Z6wYzGZi6up1HHHNTpx5XysQJVJL2fJC7qx6RWkCXWmygFsaNYHUFMFN5rJMmM5");
 
 if (parseInt($("#numshells").text())<=100) {

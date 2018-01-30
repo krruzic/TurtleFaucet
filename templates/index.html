@@ -51,5 +51,8 @@
 {% endblock %}
 {% block js %}
   {{ super() }}
+  <script type="text/javascript">
+    var csrf_token = "{{ csrf_token() }}";
+  </script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

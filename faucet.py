@@ -1,14 +1,13 @@
-from flask import Flask, render_template, flash, session, redirect, url_for, request
+from flask import Flask, render_template, request, g
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from flask_wtf.recaptcha import RecaptchaField
-from wtforms import TextAreaField, StringField
+from wtforms import StringField
 from flask_wtf.csrf import CSRFProtect
-from datetime import datetime,timedelta
-from logging.handlers import RotatingFileHandler
+from datetime import datetime
 
-from ratelimit import ratelimit
+from ratelimit import ratelimit, get_view_rate_limit
 import requests
 import json
 import os
@@ -19,11 +18,6 @@ ADDRESS = os.environ.get("FAUCET_ADDR")
 RPC_URL = "http://127.0.0.1:8070/json_rpc"
 HEADERS = {'content-type': 'application/json'}
 
-
-if "MAXPULLS" in os.environ:
-    RATELIMIT_AMOUNT = int(os.environ.get("MAXPULLS"))
-else:
-    RATELIMIT_AMOUNT = 1
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
 RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
@@ -34,24 +28,17 @@ app.config.from_object(__name__)
 
 app.config.update(dict(
     SECRET_KEY=os.environ.get("SECRET_KEY"),
-    WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY")
+    WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY"),
+    SQLALCHEMY_DATABASE_URI='sqlite:///faucet.db',
+    SQLALCHEMY_TRACK_MODIFICATIONS=False
 ))
 formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
 
-handler = RotatingFileHandler('faucet.log', maxBytes=10000, backupCount=1)
-handler.setLevel(logging.DEBUG)
-handler.setFormatter(formatter)
 
-app.logger.addHandler(handler)
-app.logger.setLevel(logging.DEBUG)
-app.logger.addHandler(handler)
-app.logger.info("App Started!")
 
 csrf.init_app(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///faucet.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-application = app
+
 class Transfer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     destination = db.Column(db.String(99), nullable=False)
@@ -72,13 +59,13 @@ class FaucetForm(FlaskForm):
 @app.after_request
 def inject_x_rate_headers(response):
     limit = get_view_rate_limit()
+    app.logger.info("LIMIT: "+str(limit))
     if limit and limit.send_x_headers:
         h = response.headers
         h.add('X-RateLimit-Remaining', str(limit.remaining))
         h.add('X-RateLimit-Limit', str(limit.limit))
         h.add('X-RateLimit-Reset', str(limit.reset))
     return response
-
 
 @app.route("/")
 def index(form=None):
