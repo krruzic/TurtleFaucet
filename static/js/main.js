@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+  $('.notification-center').hide();
   // Get all "navbar-burger" elements
   var $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
   // Check if there are any navbar burgers
@@ -34,24 +35,23 @@ $('#getshells').click(function() {
     data: $('#shellform').serialize(),
     type: 'POST',
     beforeSend: function(xhr, settings) {
+      $('.notification-center').show();
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
       }
     },
     success: function(response) {
       $('#successmessage').fadeIn(1000);
       $('#successmessage').fadeOut(3000);
+      grecaptcha.reset();
+      $('.notification-center').fadeout(3000);
     },
     error: function(error) {
-      if (error.status === 429) {
-                $('#errormessage').fadeIn(1000);
-        $('#err_message').text("You can only use the faucet 3 times a day")
-        $('#errormessage').fadeOut(3000);
-      } else {
-        $('#errormessage').fadeIn(1000);
-        $('#err_message').text(JSON.parse(error.responseText).reason)
-        $('#errormessage').fadeOut(3000);
-      }
+      $('#errormessage').fadeIn(1000);
+      $('#err_message').text(JSON.parse(error.responseText).reason)
+      $('#errormessage').fadeOut(3000);
+      grecaptcha.reset();
+      $('.notification-center').fadeout(3000);
     }
   });
 });

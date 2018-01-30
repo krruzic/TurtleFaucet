@@ -1,6 +1,4 @@
 from flask import Flask, render_template, flash, session, redirect, url_for, request
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
@@ -9,6 +7,8 @@ from wtforms import TextAreaField, StringField
 from flask_wtf.csrf import CSRFProtect
 from datetime import datetime,timedelta
 from logging.handlers import RotatingFileHandler
+
+from ratelimit import ratelimit
 import requests
 import json
 import os
@@ -31,11 +31,7 @@ csrf = CSRFProtect()
 
 app = Flask(__name__, static_url_path='/static')
 app.config.from_object(__name__)
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["3 per day"],
-)
+
 app.config.update(dict(
     SECRET_KEY=os.environ.get("SECRET_KEY"),
     WTF_CSRF_SECRET_KEY=os.environ.get("WTF_CSRF_SECRET_KEY")
@@ -73,17 +69,18 @@ class FaucetForm(FlaskForm):
     recaptcha = RecaptchaField()
     address = StringField('address', validators=[DataRequired()])
 
-def rate_check(address):
-    if "RATELIMIT" not in os.environ:
-        return True
-    uses = Transfer.query.filter(Transfer.destination == address).filter(Transfer.transfer_time > (datetime.today() -timedelta(days=1))).count()
-    app.logger.info("%s HAS USED %d TIMES" % (address,uses))
-    if uses >= RATELIMIT_AMOUNT:
-        return False
-    return True
+@app.after_request
+def inject_x_rate_headers(response):
+    limit = get_view_rate_limit()
+    if limit and limit.send_x_headers:
+        h = response.headers
+        h.add('X-RateLimit-Remaining', str(limit.remaining))
+        h.add('X-RateLimit-Limit', str(limit.limit))
+        h.add('X-RateLimit-Reset', str(limit.reset))
+    return response
+
 
 @app.route("/")
-@limiter.exempt
 def index(form=None):
     shells = json.loads(shell_balance())
     if form is None:
@@ -92,23 +89,19 @@ def index(form=None):
 
 
 @app.route("/transfers", methods=["GET"])
-@limiter.exempt
 def get_transfers():
     transfers = db.session.query(Transfer).order_by(Transfer.id.desc()).limit(10).all()
     return render_template("transfers.html",transfers=transfers)
 
 
-@limiter.limit("3 per day")
 @app.route("/pour", methods=["POST"])
+@ratelimit(limit=3, per=60*60*24)
 def get_shells():
     form = FaucetForm()
     if form.address.data==ADDRESS:
         return json.dumps({'status':'Fail',
             'reason':'The faucet cannot send to itself'}),500
     if form.validate_on_submit():
-        if not rate_check(form.address.data):
-            return json.dumps({'status':'Fail',
-                'reason':'This address has used the faucet too much today!'}),500
         resp = do_send(form.address.data)
         if "reason" in json.loads(resp):
             return resp,500
@@ -119,7 +112,6 @@ def get_shells():
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
 @app.route("/balance", methods=["GET"])
-@limiter.exempt
 def shell_balance():
     rpc_input = {
         "method": "getBalance"
