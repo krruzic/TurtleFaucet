@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
+  new Fingerprint2().get(function(result, components){
+    $('input[name="fingerprint"]').val(result); //a hash, representing your device fingerprint
+  });
   $('.notification-center').hide();
   // Get all "navbar-burger" elements
   var $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);

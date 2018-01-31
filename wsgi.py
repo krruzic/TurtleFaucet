@@ -1,3 +1,4 @@
+import logging
 from logging.handlers import RotatingFileHandler
 from faucet import app as application
 if __name__ == "__main__":

@@ -16,14 +16,14 @@
       <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}" class="image">
       <form method="POST" action="{{ url_for('get_shells') }}" id="shellform">
         {{ form.csrf_token }}
+        {{ form.fingerprint }}
         <div class="field">
           <label class="label has-text-centered">Enter Your Turtlecoin Address To Get Free TRTLs!</label>
           <div class="control" style="width: 75%; margin: auto;">
            {{ form.address(class_="input",id="addressinput") }}
           </div>
         </div>
-        <p class="has-text-centered" style="overflow-wrap: break-word;
-">Donations: {{ addr }}</p>
+        <p class="has-text-centered" style="overflow-wrap: break-word;">Donations: {{ addr }}</p>
         <p>
           {% for error in form.recaptcha.errors %}
             {{ error }}
@@ -54,5 +54,6 @@
   <script type="text/javascript">
     var csrf_token = "{{ csrf_token() }}";
   </script>
+  <script src="{{ url_for('static', filename='js/fg.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

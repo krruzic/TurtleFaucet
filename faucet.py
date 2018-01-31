@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from flask_wtf.recaptcha import RecaptchaField
-from wtforms import StringField
+from wtforms import StringField, HiddenField
 from flask_wtf.csrf import CSRFProtect
 from datetime import datetime
 
@@ -12,7 +12,6 @@ import requests
 import json
 import os
 import binascii
-import logging
 
 ADDRESS = os.environ.get("FAUCET_ADDR")
 RPC_URL = "http://127.0.0.1:8070/json_rpc"
@@ -47,24 +46,31 @@ class Transfer(db.Model):
         default=datetime.utcnow)
     status = db.Column(db.String(50), nullable=False)
     tx_hash = db.Column(db.String(128), nullable=False)
-    ip = db.Column(db.String(50),nullable=False)
+    ip = db.Column(db.String(50), nullable=False)
+    fp = db.Column(db.String(32), nullable=False)
     def __repr__(self):
         return '<Transfer %r: %d sent to %s>' % (self.tx_hash,self.amount,self.destination)
 
 class FaucetForm(FlaskForm):
     recaptcha = RecaptchaField()
     address = StringField('address', validators=[DataRequired()])
+    fingerprint = HiddenField('fingerprint')
 
 @app.after_request
 def inject_x_rate_headers(response):
     limit = get_view_rate_limit()
-    app.logger.info("LIMIT: "+str(limit))
     if limit and limit.send_x_headers:
         h = response.headers
-        h.add('X-RateLimit-Remaining', str(limit.remaining))
+        h.add('X-RateLimit-Remaining', str(limit.remaining_ip))
         h.add('X-RateLimit-Limit', str(limit.limit))
         h.add('X-RateLimit-Reset', str(limit.reset))
     return response
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return json.dumps({'status':'Fail',
+            'reason':'Server Error'})
 
 @app.route("/")
 def index(form=None):
@@ -86,14 +92,14 @@ def get_shells():
     form = FaucetForm()
     if form.address.data==ADDRESS:
         return json.dumps({'status':'Fail',
-            'reason':'The faucet cannot send to itself'}),500
+            'reason':'The faucet cannot send to itself'}),403
     if form.validate_on_submit():
         resp = do_send(form.address.data,request)
         if "reason" in json.loads(resp):
             return resp,500
         return json.dumps({'status':'OK'}),200
     return json.dumps({'status':'Fail',
-            'reason':'Make sure the captcha and address fields are filled'}),500
+            'reason':'Make sure the captcha and address fields are filled'}),400
 
 
 ## code modified from https://moneroexamples.github.io/python-json-rpc/
@@ -134,7 +140,7 @@ def do_send(address,r):
         "params": {"anonymity":1,
                    "transfers": recipents,
                    "unlockTime": 0,
-                   "fee": 10,
+                   "fee": 5,
                    "paymentId": payment_id}
     }
 
@@ -158,7 +164,8 @@ def do_send(address,r):
         transfer_time=datetime.utcnow(),
         status="Sent",
         tx_hash=tx_hash,
-        ip=r.environ['REMOTE_ADDR']
+        ip=r.environ['REMOTE_ADDR'],
+        fp=r.form.get('fingerprint')
         )
     db.session.add(transfer)
     db.session.commit()
