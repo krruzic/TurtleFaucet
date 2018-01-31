@@ -47,7 +47,7 @@ class Transfer(db.Model):
         default=datetime.utcnow)
     status = db.Column(db.String(50), nullable=False)
     tx_hash = db.Column(db.String(128), nullable=False)
-
+    ip = db.Column(db.String(50),nullable=False)
     def __repr__(self):
         return '<Transfer %r: %d sent to %s>' % (self.tx_hash,self.amount,self.destination)
 
@@ -81,14 +81,14 @@ def get_transfers():
 
 
 @app.route("/pour", methods=["POST"])
-@ratelimit(limit=3, per=60*60*24)
+@ratelimit(limit=4, per=60*60*24)
 def get_shells():
     form = FaucetForm()
     if form.address.data==ADDRESS:
         return json.dumps({'status':'Fail',
             'reason':'The faucet cannot send to itself'}),500
     if form.validate_on_submit():
-        resp = do_send(form.address.data)
+        resp = do_send(form.address.data,request)
         if "reason" in json.loads(resp):
             return resp,500
         return json.dumps({'status':'OK'}),200
@@ -119,9 +119,9 @@ def shell_balance():
     return json.dumps({"available": str((av)/100),"locked": str((lck)/100)})
 
 
-def do_send(address):
+def do_send(address,r):
     avail = json.loads(shell_balance())['available']
-    int_amount = 1000
+    int_amount = 300
 
     recipents = [{"address": address,
                   "amount": int_amount}]
@@ -131,7 +131,7 @@ def do_send(address):
     # simplewallet' procedure/method to call
     rpc_input = {
         "method": "sendTransaction",
-        "params": {"anonymity":0,
+        "params": {"anonymity":1,
                    "transfers": recipents,
                    "unlockTime": 0,
                    "fee": 10,
@@ -148,6 +148,7 @@ def do_send(address):
          headers=HEADERS)
     # pretty print json output
     app.logger.info(json.dumps(response.json(), indent=4))
+    app.logger.info("FROM IP: "+r.environ['REMOTE_ADDR'])
     if "error" in response.json():
         return json.dumps({"status": "Fail", "reason": response.json()["error"]["message"]})
     tx_hash = response.json()['result']['transactionHash']
@@ -156,7 +157,8 @@ def do_send(address):
         amount = int_amount,
         transfer_time=datetime.utcnow(),
         status="Sent",
-        tx_hash=tx_hash
+        tx_hash=tx_hash,
+        ip=r.environ['REMOTE_ADDR']
         )
     db.session.add(transfer)
     db.session.commit()
