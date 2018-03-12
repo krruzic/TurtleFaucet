@@ -10,15 +10,15 @@
   <div class="container">
     <div class="content">
       <div class="columns" style="justify-content: space-between; align-items: baseline;">
-      <h1 class="has-text-white is-capitalized has-text-weight-light is-size-1-fullhd" style="margin: 0">TurtleCoin Faucet</h1>
-      <h2 class="has-text-white is-capitalized has-text-weight-light is-size-5-fullhd" style="margin: 0;"><span id="numshells">{{ shells }}</span> TRTLs remaining</h2>
+      <h1 class="green is-capitalized has-text-weight-light is-size-1-fullhd" style="margin: 0">IPBC</h1>
+      <h2 class="green is-capitalized has-text-weight-light is-size-5-fullhd" style="margin: 0;"><span id="numshells">{{ shells }}</span> IPBC remaining</h2>
     </div>
-      <img src="{{ url_for('static', filename='img/turtle_shield.svg') }}" class="image">
+      <img src="{{ url_for('static', filename='img/icon.png') }}" class="image">
       <form method="POST" action="{{ url_for('get_shells') }}" id="shellform">
         {{ form.csrf_token }}
         {{ form.fingerprint }}
         <div class="field">
-          <label class="label has-text-centered">Enter Your Turtlecoin Address To Get Free TRTLs!</label>
+          <label class="label has-text-centered">Enter Your IPBC Address To Recieve free coins!</label>
           <div class="control" style="width: 75%; margin: auto;">
            {{ form.address(class_="input",id="addressinput") }}
           </div>
@@ -31,7 +31,7 @@
           {{ form.recaptcha }}
         </p>
         <div class="control has-text-centered" style="margin: auto;">
-          <a class="button is-dark" id="getshells">Get Shells</a>
+          <a class="button" id="getshells">Get IPBC</a>
         </div>
       </form>
     </div>
@@ -40,7 +40,7 @@
 <div class="notification-center">
   <div class="notification is-info" id="successmessage">
     <button class="delete"></button>
-    Success! TRTLs have been sent :)
+    Success! IPBC have been sent :)
   </div>
   <div class="notification is-danger" id="errormessage">
     <button class="delete"></button>

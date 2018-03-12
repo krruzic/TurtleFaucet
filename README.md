@@ -1,9 +1,8 @@
-Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limiting is set to 3 per day.
-
-
+Faucet for IPBC at ipbc.faucet.me, this branch tracks relatively minor changes from the
+turtlecoin implementation at master.
 
 ## Running this
-First make sure Turtlecoind is running and fully sync'd.
+First make sure ipbcd is running and fully sync'd.
 Then start `walletd` with these args:
 `/path/to/walletd -w walletname -p walletpass -d`
 
@@ -35,8 +34,10 @@ re-logger = /path/to/reqlog.log
 ```
 
 After that, run 
+
+To set up the database, run
 ```python
-python3 -c 'from serve import db;db.create_all()'
+python3 -c 'from faucet import db;db.create_all()'
 ```
-then `uwsgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
+then `uwsgi --ini faucet.ini`. Make sure you have ipbcd and walletd running.
 I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)

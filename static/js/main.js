@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-$("#addressinput").attr('placeholder',"TRTLv3YFzEtDMrpWXAFgLRiB4Cfk7Gs1yUM2Z6wYzGZi6up1HHHNTpx5XysQJVJL2fJC7qx6RWkCXWmygFsaNYHUFMFN5rJMmM5");
+$("#addressinput").attr('placeholder',"bxctPPLbJ1THXjwgP8LSACJgLky4tfprHZ9hogupzNiZ6VNuezpsWGk8j1fGtJaqYBBGwztHpugNMSVegeiRqqSz2p7sY9VMg");
 
-if (parseInt($("#numshells").text())<=100) {
+if (parseInt($("#numshells").text())<=0.1) {
   $("#addressinput").prop('disabled',true);
   $("#addressinput").attr('placeholder',"The Faucet is too low! Come back later");
 } else {
   $("#addressinput").prop('disabled',false);
-  $("#addressinput").attr('placeholder',"TRTLv3YFzEtDMrpWXAFgLRiB4Cfk7Gs1yUM2Z6wYzGZi6up1HHHNTpx5XysQJVJL2fJC7qx6RWkCXWmygFsaNYHUFMFN5rJMmM5");
+  $("#addressinput").attr('placeholder',"bxctPPLbJ1THXjwgP8LSACJgLky4tfprHZ9hogupzNiZ6VNuezpsWGk8j1fGtJaqYBBGwztHpugNMSVegeiRqqSz2p7sY9VMg");
 }
 
 $('#getshells').click(function() {
@@ -51,10 +51,10 @@ $('#getshells').click(function() {
     },
     error: function(error) {
       $('#errormessage').fadeIn(1000);
-      $('#err_message').text(JSON.parse(error.responseText).reason)
+      $('#err_message').text(JSON.parse(error.responseText).reason);
       $('#errormessage').fadeOut(3000);
       grecaptcha.reset();
-      $('.notification-center').fadeout(3000);
+      $('.notification-center').fadeOut(3000);
     }
   });
 });

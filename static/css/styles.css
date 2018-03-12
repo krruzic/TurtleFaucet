@@ -1,17 +1,29 @@
 nav {
   display: flex;
 }
-.navbar-menu.is-active {
-  background-color: #363636;
-  padding: 0 !important;
-  align-self: center;
+.navbar {
+  border-bottom: 2px solid #86af49;
+}
+.logo {
+  width: 220px;
+}
+.green {
+  color: #86af49 !important;
+}
+
+th {
+  color: #86af49 !important;
+}
+.navbar-menu .is-active {
+  font-weight: 700;
 }
 .navbar-item {
-  color: #fff !important;
+  color: #86af49 !important;
+  padding-top: 4px;
+  padding-bottom 4px;
 }
 
 #particles-js {
-  background: linear-gradient(to right, #2ecc71 0%,#27aa6b 35%,#2ecc71 64%,#229379 100%);
   position:fixed;
   top:3.25rem;
   right:0;

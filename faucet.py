@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, g
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from flask_wtf.recaptcha import RecaptchaField
@@ -14,12 +15,11 @@ import os
 import binascii
 
 ADDRESS = os.environ.get("FAUCET_ADDR")
-RPC_URL = "http://127.0.0.1:8070/json_rpc"
+RPC_URL = "http://127.0.0.1:9901/json_rpc"
 HEADERS = {'content-type': 'application/json'}
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
-RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
 csrf = CSRFProtect()
 
 app = Flask(__name__, static_url_path='/static')
@@ -32,15 +32,26 @@ app.config.update(dict(
     SQLALCHEMY_TRACK_MODIFICATIONS=False
 ))
 
+import logging
+from logging.handlers import RotatingFileHandler
 
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
+handler = RotatingFileHandler('faucet.log', maxBytes=100000, backupCount=10)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.DEBUG)
+app.logger.addHandler(handler)
+app.logger.info("App Started!")
 
 csrf.init_app(app)
 db = SQLAlchemy(app)
 
 class Transfer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    destination = db.Column(db.String(99), nullable=False)
-    payment_id = db.Column(db.String(128), nullable=False)
+    destination = db.Column(db.String(97), nullable=False)
+    payment_id = db.Column(db.String(64), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
     transfer_time = db.Column(db.DateTime, nullable=False,
         default=datetime.utcnow)
@@ -85,11 +96,22 @@ def get_transfers():
     transfers = db.session.query(Transfer).order_by(Transfer.id.desc()).limit(10).all()
     return render_template("transfers.html",transfers=transfers)
 
+def check_address():
+    # blocks faucet users > 100.
+    return db.session.query(Transfer.destination, Transfer.ip, func.count(Transfer.destination)).group_by(Transfer.destination).having(func.count(Transfer.destination)>100)
 
 @app.route("/pour", methods=["POST"])
 @ratelimit(limit=4, per=60*60*24)
 def get_shells():
     form = FaucetForm()
+    addrs = check_address()
+    for ban in addrs:
+        if form.address.data==ban[0] or request.environ['REMOTE_ADDR']==ban[1]: # user shadowbanned, pretend to give turtles.
+            app.logger.info("USER BANNED!")
+            return json.dumps({'status':'OK'}),200
+    if form.fingerprint.data=='':
+        return json.dumps({'status':'Fail',
+            'reason':'Fingerprint not detected...'}),400
     if form.address.data==ADDRESS:
         return json.dumps({'status':'Fail',
             'reason':'The faucet cannot send to itself'}),403
@@ -122,12 +144,12 @@ def shell_balance():
 
     av = float(data['result']['availableBalance'])
     lck = float(data['result']['lockedAmount'])
-    return json.dumps({"available": str((av)/100),"locked": str((lck)/100)})
+    return json.dumps({"available": str((av)/100000000),"locked": str((lck)/100000000)})
 
 
 def do_send(address,r):
     avail = json.loads(shell_balance())['available']
-    int_amount = 300
+    int_amount = 1000000
 
     recipents = [{"address": address,
                   "amount": int_amount}]
@@ -136,27 +158,29 @@ def do_send(address,r):
     payment_id = get_payment_id()
     # simplewallet' procedure/method to call
     rpc_input = {
+        "jsonrpc": "2.0",
+        "id": "test",
         "method": "sendTransaction",
+        "addresses": ADDRESS,
         "params": {"anonymity":1,
                    "transfers": recipents,
-                   "unlockTime": 0,
-                   "fee": 5,
-                   "paymentId": payment_id}
+                   "fee": 100000}
     }
 
     # add standard rpc values
-    rpc_input.update({"jsonrpc": "2.0", "id": "0"})
-
+    app.logger.info(rpc_input)
     # execute the rpc request
     response = requests.post(
          RPC_URL,
          data=json.dumps(rpc_input),
          headers=HEADERS)
+
     # pretty print json output
-    app.logger.info(json.dumps(response.json(), indent=4))
     app.logger.info("FROM IP: "+r.environ['REMOTE_ADDR'])
     if "error" in response.json():
+        app.logger.info("ERROR: "+response.text)
         return json.dumps({"status": "Fail", "reason": response.json()["error"]["message"]})
+    app.logger.info("SUCCESS: "+response.text)
     tx_hash = response.json()['result']['transactionHash']
     transfer = Transfer(destination=address,
         payment_id=payment_id,
