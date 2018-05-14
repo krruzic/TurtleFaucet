@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from faucet import app as application
+
 if __name__ == "__main__":
     formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
     handler = RotatingFileHandler('faucet.log', maxBytes=10000, backupCount=1)
