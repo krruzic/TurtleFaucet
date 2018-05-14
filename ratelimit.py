@@ -54,11 +54,11 @@ def ratelimit(limit, per=300, send_x_headers=True,
             g._view_rate_limit = rlimit
 
             # check if IP has been used LIMIT times
-            if over_limit is not None and rlimit.over_ip_limit:
+            if rlimit.over_ip_limit:
                 return over_limit(rlimit)
 
             # IP is good, check fingerprint now
-            if over_limit is not None and not rlimit.over_ip_limit:
+            if not rlimit.over_ip_limit:
                 if rlimit.over_fp_limit:
                     return over_limit(rlimit)
 

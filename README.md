@@ -1,4 +1,4 @@
-Quickly thrown together faucet. Currently set to give out 10TRTLs a pop. Limiting is set to 3 per day.
+Quickly thrown together faucet. Currently set to give out 1 TRTL a pop. Limiting is set to 3 per day.
 
 
 
@@ -36,7 +36,7 @@ re-logger = /path/to/reqlog.log
 
 After that, run 
 ```python
-python3 -c 'from serve import db;db.create_all()'
+python3 -c 'from faucet import db;db.create_all()'
 ```
 then `uwsgi --ini faucet.ini`. Make sure you have turtlecoind and simplewallet running.
 I left in the google analytics because I couldn't find a way to add that at deployment. Enjoy :)

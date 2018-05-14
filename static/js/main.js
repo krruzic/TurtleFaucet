@@ -51,10 +51,10 @@ $('#getshells').click(function() {
     },
     error: function(error) {
       $('#errormessage').fadeIn(1000);
-      $('#err_message').text(JSON.parse(error.responseText).reason)
+      $('#err_message').text(JSON.parse(error.responseText).reason);
       $('#errormessage').fadeOut(3000);
       grecaptcha.reset();
-      $('.notification-center').fadeout(3000);
+      $('.notification-center').fadeOut(3000);
     }
   });
 });
